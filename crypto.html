@@ -1,0 +1,64 @@
+<html>
+<header>
+    <title>Crypto</title>
+</header>
+
+<body>
+    <script>
+        var key = 23;
+        function encrypt() {
+            let plain = document.getElementById("plain");
+            let crypto = document.getElementById("crypto");
+
+            let text = plain.value;
+
+            // do the encryption
+            let enc = '';
+            for (let i = 0; i < text.length; i++) {
+                let x = (text.charCodeAt(i) + key) % 256;
+                if (i !== 0)
+                    enc += ' '
+                enc += x.toString();
+            }
+
+            crypto.value = enc;
+        }
+
+        function decrypt() {
+            let plain = document.getElementById("plain");
+            let crypto = document.getElementById("crypto");
+
+            let enc = crypto.value;
+            let chars = enc.split(/\s+/);            
+            let text = '';
+            for (let i = 0; i < chars.length; i++) {
+                let c = Number(chars[i]);
+                let x = (256 + c - key) % 256;
+                text += String.fromCharCode(x);
+            }
+            plain.value = text;
+        }
+    </script>
+    <table>
+        <tr>
+            <td>
+                <div>Plain Text</div>
+                <div><textarea id="plain" rows="15" cols="30"></textarea></div>
+            </td>
+            <td>
+                <div>
+                    <button style="width:75px; margin-bottom: 8px;" onclick="encrypt()">encrypt</button>
+                </div>
+                <div>
+                    <button style="width:75px;" onclick="decrypt()">decrypt</button>
+                </div>
+            </td>
+            <td>
+                <div>Encrypted</div>
+                <div><textarea id="crypto" rows="15" cols="30"></textarea></div>
+            </td>
+        </tr>
+    </table>
+</body>
+
+</html>
