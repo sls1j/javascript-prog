@@ -1,0 +1,20 @@
+<html>
+    <header>
+        <title>Boom</title>
+    </header>
+    <body onload="draw()">
+        <script>
+            function draw()
+            {
+                let canvas = document.getElementById("canvas");
+                let ctx = canvas.getContext("2d");
+                let height = canvas.clientHeight;
+                let width = canvas.clientWidth;
+                ctx.fillStyle = "blue";
+                ctx.fillRect(0,0,width,height);
+            }
+        </script>
+    </body>
+
+    <canvas id="canvas"></canvas>
+</html>
