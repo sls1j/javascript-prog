@@ -3,7 +3,7 @@
     <title>Boom</title>
 </header>
 
-<body onload="draw()">
+<body onload="init()">
     <script>
         var canvas;
         var ctx;
@@ -11,39 +11,73 @@
         var halfHeight;
         var width;
         var gound;
+        const phi = 2 * Math.PI;
 
-        function drawTank() {
-            ctx.strokeStyle = "black";
-            let x = 30;
-            let y = height-ground[x]-8;
-            ctx.strokeRect(x, y, 20, 10);
-            ctx.fillStyle="gray"
-            ctx.fillRect(x+1,y+1,18,28);
-        }
-
-        function drawTarget() {
-
-        }
-
-        function draw() {
+        function init() {
             canvas = document.getElementById("canvas");
             ctx = canvas.getContext("2d");
             height = canvas.clientHeight;
             halfHeight = height / 2;
             width = canvas.clientWidth;
             ground = [];
-            ctx.fillStyle = "blue";
-            ctx.fillRect(0, 0, width, height);
 
             let noise = 0.0;
             let mountainHeight = 0.4 * halfHeight * Math.random();
             let phase = Math.random() * Math.PI;
-            ctx.strokeStyle = "tan";
+
             for (let i = 0; i < width; i++) {
                 noise += Math.random() * 2.0 - 1.0;
-                let altitude = Math.cos(2 * Math.PI * i / width + phase) * mountainHeight + halfHeight + noise;
+                let altitude = Math.cos(phi * i / width + phase) * mountainHeight + halfHeight + noise;
                 ground[i] = altitude;
-                let y = height - altitude;
+            }
+
+            draw();
+        }
+
+        function getAngle() {
+            let angle = Number(document.getElementById("angle").value);
+            return phi * angle / 360.0;
+        }
+
+        function getPower() {
+            let power = Number(document.getElementById("power").value);
+            return power;
+        }
+
+        function drawTank() {
+            let x = 30;
+            let y = height - ground[x] - 8;
+            let x2 = Math.cos(getAngle()) * 10 + x;
+            let y2 = y - Math.sin(getAngle()) * 10;
+
+            ctx.fillStyle = "gray"
+            ctx.fillRect(x, y, 20, 20);
+            ctx.strokeStyle = "black";
+            ctx.strokeRect(x, y, 20, 10);
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.moveTo(x + 10, y);
+            ctx.lineTo(x2 + 10, y2);
+            ctx.stroke();
+        }
+
+        function drawTarget() {
+            let x = width - 30;
+            let y = height - ground[x] - 8;
+
+            ctx.fillStyle = "red"
+            ctx.fillRect(x, y, 20, 20);
+            ctx.strokeStyle = "black";
+            ctx.strokeRect(x, y, 20, 10);
+        }
+
+        function draw() {
+            ctx.fillStyle = "blue";
+            ctx.fillRect(0, 0, width, height);
+
+            ctx.strokeStyle = "tan";
+            for (let i = 0; i < width; i++) {
+                let y = height - ground[i];
                 ctx.beginPath();
                 ctx.moveTo(i, height);
                 ctx.lineTo(i, y);
@@ -53,18 +87,78 @@
             drawTank();
             drawTarget();
         }
+
+        function fire() {
+            let power = getPower();
+            let angle = getAngle();
+            let x = 30 + 10;
+            let y = ground[x] + 10;
+            let xv = Math.cos(angle) * power;
+            let yv = Math.sin(angle) * power;
+
+            let deltaTime = 0.2;
+            let gravity = 1.0;
+
+            const animate = (timestamp) => {
+                let i = Math.trunc(x);
+                if (y > ground[i]) {
+                    x += xv * deltaTime;
+                    y += yv * deltaTime;
+                    yv -= deltaTime * gravity;
+                    draw();
+                    ctx.strokeStyle = "yellow";
+                    ctx.beginPath();
+                    ctx.arc(x, height - y, 1, 0, phi);
+                    ctx.stroke();
+
+                    requestAnimationFrame(animate);
+                }
+                else {
+                    drawBoom(x, y);
+                }
+            }
+
+            requestAnimationFrame(animate);
+        }
+
+        function drawBoom(x, y) {
+            let time = 0;
+            let deltaTime = 0.4;
+            const animate = (timestamp) => {
+                let i = Math.trunc(time);
+                time += deltaTime;
+                ctx.beginPath();
+                ctx.strokeStyle = (i % 2 == 0) ? "red" : "orange";
+                ctx.arc(x, height - y, time, 0, phi);
+                ctx.stroke();
+                if (time < 20.0)
+                    requestAnimationFrame(animate);
+                else {
+                    ctx.fillStyle = "blue";
+                    ctx.arc(x, height - y, time, 0, phi);
+                    ctx.fill();
+
+                    for (let i = x - time; i < x + time; i += 1) {
+                        let z = Math.trunc(i);
+                        ground[z] = y - Math.sqrt(time*time - (i-x)*(i-x));
+                    }
+                    draw();
+                }
+            };
+
+            requestAnimationFrame(animate);
+        }
     </script>
 </body>
-
 <canvas id="canvas" width="800" height="400"></canvas>
 <br>
 <table>
     <tr>
         <td>
-            Angle <input type="number" />
+            Angle <input id="angle" value="45" type="number" onchange="draw()" />
         </td>
-        <td>Power <input type="number" /></td>
-        <td><button>Fire!</button></td>
+        <td>Power <input id="power" value="1" type="number" /></td>
+        <td><button onclick="fire()">Fire!</button></td>
     </tr>
 </table>
 

@@ -1,0 +1,26 @@
+<html>
+    <header>
+        <title>Numbers</title>
+    </header>
+    <body>
+        <script>
+            
+
+            function calculate()
+            {
+                let answers = document.getElementById("answers");
+                let a = 1;
+                a = a + 1;
+                let b = a * a;
+                let c = a / 2;
+
+                let values = 'a=' + a + ' b=' + b + ' c=' + c;
+                answers.value = values;
+            }
+        </script>
+
+        <button onclick="calculate()">Calculate</button>
+        <div>Answers</div>
+        <textarea id="answers" rows="10" cols="40"></textarea>
+    </body>
+</html>
