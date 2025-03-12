@@ -1,20 +1,71 @@
 <html>
-    <header>
-        <title>Boom</title>
-    </header>
-    <body onload="draw()">
-        <script>
-            function draw()
-            {
-                let canvas = document.getElementById("canvas");
-                let ctx = canvas.getContext("2d");
-                let height = canvas.clientHeight;
-                let width = canvas.clientWidth;
-                ctx.fillStyle = "blue";
-                ctx.fillRect(0,0,width,height);
-            }
-        </script>
-    </body>
+<header>
+    <title>Boom</title>
+</header>
 
-    <canvas id="canvas"></canvas>
+<body onload="draw()">
+    <script>
+        var canvas;
+        var ctx;
+        var height;
+        var halfHeight;
+        var width;
+        var gound;
+
+        function drawTank() {
+            ctx.strokeStyle = "black";
+            let x = 30;
+            let y = height-ground[x]-8;
+            ctx.strokeRect(x, y, 20, 10);
+            ctx.fillStyle="gray"
+            ctx.fillRect(x+1,y+1,18,28);
+        }
+
+        function drawTarget() {
+
+        }
+
+        function draw() {
+            canvas = document.getElementById("canvas");
+            ctx = canvas.getContext("2d");
+            height = canvas.clientHeight;
+            halfHeight = height / 2;
+            width = canvas.clientWidth;
+            ground = [];
+            ctx.fillStyle = "blue";
+            ctx.fillRect(0, 0, width, height);
+
+            let noise = 0.0;
+            let mountainHeight = 0.4 * halfHeight * Math.random();
+            let phase = Math.random() * Math.PI;
+            ctx.strokeStyle = "tan";
+            for (let i = 0; i < width; i++) {
+                noise += Math.random() * 2.0 - 1.0;
+                let altitude = Math.cos(2 * Math.PI * i / width + phase) * mountainHeight + halfHeight + noise;
+                ground[i] = altitude;
+                let y = height - altitude;
+                ctx.beginPath();
+                ctx.moveTo(i, height);
+                ctx.lineTo(i, y);
+                ctx.stroke();
+            }
+
+            drawTank();
+            drawTarget();
+        }
+    </script>
+</body>
+
+<canvas id="canvas" width="800" height="400"></canvas>
+<br>
+<table>
+    <tr>
+        <td>
+            Angle <input type="number" />
+        </td>
+        <td>Power <input type="number" /></td>
+        <td><button>Fire!</button></td>
+    </tr>
+</table>
+
 </html>
